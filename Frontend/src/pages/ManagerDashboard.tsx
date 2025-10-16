@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useAuth } from '../contexts/authcontext';
+import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { getAllProjects } from '../api/api';
+import ProjectDetail from './ProjectDetail';
 
 interface Project {
   id: string;
@@ -96,13 +97,13 @@ export default function ManagerDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map((project) => (
               <div
-                key={project.id}
+                key={project.id}  
                 onClick={() => navigate(`/projects/${project.id}`)}
                 className="bg-white p-6 rounded-lg border border-gray-200 hover:shadow-lg cursor-pointer transition-shadow"
               >
                 <h3 className="text-lg font-semibold text-gray-900 mb-2">
                   {project.name}
-                </h3>
+                </h3> 
                 <p className="text-gray-600 text-sm mb-4">
                   Client: {project.clientName}
                 </p>

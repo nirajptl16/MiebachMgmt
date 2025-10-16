@@ -160,6 +160,19 @@ export interface TaskBudget {
   percentUsed: number;
 }
 
+
+export interface UtilizationEntry {
+  userId: string;
+  userName: string;
+  periodStart: string;
+  periodEnd: string;
+  staffedHours: number;
+  actualLoggedHours: number;
+  utilizationPercent: number;
+  projectId?: string;
+  projectName?: string;
+}
+
 //Login API call 
 export const login = async (data: LoginRequest): Promise<LoginResponse> => {
     const response = await apiClient.post<LoginResponse>('/auth/login', data);
@@ -272,5 +285,27 @@ export const deleteTimeEntry = async (entryId: string): Promise<void> => {
 
 export const getTaskBudget = async (taskId: string): Promise<TaskBudget> => {
   const response = await apiClient.get<TaskBudget>(`/time-entries/task/${taskId}/budget`);
+  return response.data;
+};
+
+// ==================== ADDITIONAL API CALLS ====================
+export const getProjectUtilization = async (
+  projectId: string,
+  period: string // e.g., '2025-10-01' for week/month start
+): Promise<UtilizationEntry[]> => {
+  const response = await apiClient.get<UtilizationEntry[]>(
+    `/projects/${projectId}/utilization?period=${period}`
+  );
+  return response.data;
+};
+
+// Get utilization by user (across projects, per period)
+export const getUserUtilization = async (
+  userId: string,
+  period: string
+): Promise<UtilizationEntry[]> => {
+  const response = await apiClient.get<UtilizationEntry[]>(
+    `/auth/users/${userId}/utilization?period=${period}`
+  );
   return response.data;
 };
