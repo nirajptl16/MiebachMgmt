@@ -132,14 +132,14 @@ async function main() {
       {
         taskId: websiteRedesignTask.id,
         userId: alice.id,
-        workDate: new Date('2025-01-13'),
+        date: new Date('2025-01-13'),
         hours: 8,
         isBillable: true,
       },
       {
         taskId: websiteRedesignTask.id,
         userId: alice.id,
-        workDate: new Date('2025-01-14'),
+        date: new Date('2025-01-14'),
         hours: 6,
         isBillable: true,
       },

@@ -3,56 +3,70 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-// Log time entry (CONTRIBUTOR action)
+// Helper to convert Decimal fields
+const convertTimeEntryDecimals = (entry: any) => ({
+  ...entry,
+  hours: entry.hours ? Number(entry.hours.toNumber()) : 0,
+});
+
+// Create a time entry
 export const createTimeEntry = async (req: Request, res: Response) => {
   try {
-    const { taskId, workDate, hours, isBillable } = req.body;
-    const userId = req.user!.userId;
+    const userId = (req as any).user.userId;
+    const { taskId, date, hours, isBillable } = req.body; // ← Changed from workDate to date
 
-    if (!taskId || !workDate || hours === undefined) {
+    console.log('📝 Creating time entry:', { userId, taskId, date, hours, isBillable });
+
+    // Validate required fields
+    if (!taskId || !date || hours === undefined) {
       return res.status(400).json({ 
-        error: 'Missing required fields: taskId, workDate, hours' 
+        error: 'Missing required fields: taskId, date, hours',
+        received: { taskId, date, hours, isBillable }
       });
     }
 
-    // Validate user is assigned to this task
-    const assignment = await prisma.taskAssignment.findUnique({
+    // Validate hours is a valid number
+    const parsedHours = parseFloat(hours);
+    if (isNaN(parsedHours) || parsedHours <= 0) {
+      return res.status(400).json({ error: 'Hours must be a positive number' });
+    }
+
+    // Verify user is assigned to this task
+    const assignment = await prisma.taskAssignment.findFirst({
       where: {
-        taskId_userId: {
-          taskId,
-          userId,
-        },
+        taskId,
+        userId,
       },
     });
 
     if (!assignment) {
-      return res.status(403).json({ 
-        error: 'You are not assigned to this task. Please contact your manager.' 
-      });
+      return res.status(403).json({ error: 'You are not assigned to this task' });
     }
 
-    // Validate hours
-    const hoursNum = parseFloat(hours);
-    if (hoursNum <= 0 || hoursNum > 24) {
-      return res.status(400).json({ 
-        error: 'Hours must be between 0 and 24' 
-      });
-    }
-
+    // Create the time entry
     const timeEntry = await prisma.timeEntry.create({
       data: {
         taskId,
         userId,
-        workDate: new Date(workDate),
-        hours: hoursNum,
+        date: new Date(date), // ← Use date field
+        hours: parsedHours,
         isBillable: isBillable !== undefined ? isBillable : true,
       },
       include: {
         task: {
-          include: {
+          select: {
+            id: true,
+            title: true,
             phase: {
-              include: {
-                project: true,
+              select: {
+                id: true,
+                name: true,
+                project: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
           },
@@ -67,53 +81,18 @@ export const createTimeEntry = async (req: Request, res: Response) => {
       },
     });
 
-    res.status(201).json(timeEntry);
-  } catch (error) {
-    console.error('Create time entry error:', error);
-    res.status(500).json({ error: 'Failed to log time' });
-  }
-};
-
-// Get my time entries (CONTRIBUTOR view)
-export const getMyTimeEntries = async (req: Request, res: Response) => {
-  try {
-    const userId = req.user!.userId;
-    const { startDate, endDate } = req.query;
-
-    const whereClause: any = { userId };
-
-    if (startDate || endDate) {
-      whereClause.workDate = {};
-      if (startDate) whereClause.workDate.gte = new Date(startDate as string);
-      if (endDate) whereClause.workDate.lte = new Date(endDate as string);
-    }
-
-    const entries = await prisma.timeEntry.findMany({
-      where: whereClause,
-      include: {
-        task: {
-          include: {
-            phase: {
-              include: {
-                project: true,
-              },
-            },
-          },
-        },
-      },
-      orderBy: {
-        workDate: 'desc',
-      },
+    console.log('✅ Time entry created:', timeEntry.id);
+    res.status(201).json(convertTimeEntryDecimals(timeEntry));
+  } catch (error: any) {
+    console.error('❌ Create time entry error:', error);
+    res.status(500).json({ 
+      error: 'Failed to create time entry',
+      details: error.message 
     });
-
-    res.json(entries);
-  } catch (error) {
-    console.error('Get my time entries error:', error);
-    res.status(500).json({ error: 'Failed to fetch time entries' });
   }
 };
 
-// Get time entries for a task (MANAGER view)
+// Get time entries for a task
 export const getTaskTimeEntries = async (req: Request, res: Response) => {
   try {
     const { taskId } = req.params;
@@ -130,40 +109,89 @@ export const getTaskTimeEntries = async (req: Request, res: Response) => {
         },
       },
       orderBy: {
-        workDate: 'desc',
+        date: 'desc',
       },
     });
 
-    res.json(entries);
+    const converted = entries.map(convertTimeEntryDecimals);
+    res.json(converted);
   } catch (error) {
     console.error('Get task time entries error:', error);
     res.status(500).json({ error: 'Failed to fetch time entries' });
   }
 };
 
-// Get time entries for a project (MANAGER view)
-export const getProjectTimeEntries = async (req: Request, res: Response) => {
+// Get my time entries
+export const getMyTimeEntries = async (req: Request, res: Response) => {
   try {
-    const { projectId } = req.params;
-    const { startDate, endDate } = req.query;
-
-    const whereClause: any = {
-      task: {
-        phase: {
-          projectId,
-        },
-      },
-    };
-
-    if (startDate || endDate) {
-      whereClause.workDate = {};
-      if (startDate) whereClause.workDate.gte = new Date(startDate as string);
-      if (endDate) whereClause.workDate.lte = new Date(endDate as string);
-    }
+    const userId = (req as any).user.userId;
 
     const entries = await prisma.timeEntry.findMany({
-      where: whereClause,
+      where: { userId },
       include: {
+        task: {
+          select: {
+            id: true,
+            title: true,
+            phase: {
+              select: {
+                id: true,
+                name: true,
+                project: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        date: 'desc',
+      },
+    });
+
+    const converted = entries.map(convertTimeEntryDecimals);
+    res.json(converted);
+  } catch (error) {
+    console.error('Get my time entries error:', error);
+    res.status(500).json({ error: 'Failed to fetch time entries' });
+  }
+};
+
+// Update time entry
+export const updateTimeEntry = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+    const { entryId } = req.params;
+    const { date, hours, isBillable } = req.body;
+
+    // Verify ownership
+    const entry = await prisma.timeEntry.findUnique({
+      where: { id: entryId },
+    });
+
+    if (!entry || entry.userId !== userId) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    const updateData: any = {};
+    if (date) updateData.date = new Date(date);
+    if (hours !== undefined) updateData.hours = parseFloat(hours);
+    if (isBillable !== undefined) updateData.isBillable = isBillable;
+
+    const updated = await prisma.timeEntry.update({
+      where: { id: entryId },
+      data: updateData,
+      include: {
+        task: {
+          select: {
+            id: true,
+            title: true,
+          },
+        },
         user: {
           select: {
             id: true,
@@ -171,20 +199,87 @@ export const getProjectTimeEntries = async (req: Request, res: Response) => {
             email: true,
           },
         },
-        task: {
-          include: {
-            phase: true,
-          },
-        },
-      },
-      orderBy: {
-        workDate: 'desc',
       },
     });
 
-    res.json(entries);
+    res.json(convertTimeEntryDecimals(updated));
   } catch (error) {
-    console.error('Get project time entries error:', error);
-    res.status(500).json({ error: 'Failed to fetch time entries' });
+    console.error('Update time entry error:', error);
+    res.status(500).json({ error: 'Failed to update time entry' });
+  }
+};
+
+// Delete time entry
+export const deleteTimeEntry = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user.userId;
+    const { entryId } = req.params;
+
+    // Verify ownership
+    const entry = await prisma.timeEntry.findUnique({
+      where: { id: entryId },
+    });
+
+    if (!entry || entry.userId !== userId) {
+      return res.status(403).json({ error: 'Unauthorized' });
+    }
+
+    await prisma.timeEntry.delete({
+      where: { id: entryId },
+    });
+
+    res.json({ message: 'Time entry deleted successfully' });
+  } catch (error) {
+    console.error('Delete time entry error:', error);
+    res.status(500).json({ error: 'Failed to delete time entry' });
+  }
+};
+
+// Get task budget summary
+export const getTaskBudget = async (req: Request, res: Response) => {
+  try {
+    const { taskId } = req.params;
+
+    const task = await prisma.task.findUnique({
+      where: { id: taskId },
+      include: {
+        assignments: true,
+        timeEntries: {
+          include: {
+            user: true,
+          },
+        },
+      },
+    });
+
+    if (!task) {
+      return res.status(404).json({ error: 'Task not found' });
+    }
+
+    // Calculate consumed budget
+    let totalConsumed = 0;
+    for (const entry of task.timeEntries) {
+      const assignment = task.assignments.find(a => a.userId === entry.userId);
+      if (assignment) {
+        const hours = entry.hours.toNumber();
+        const rate = assignment.hourlyRate.toNumber();
+        totalConsumed += hours * rate;
+      }
+    }
+
+    const budget = task.budget.toNumber();
+    const remaining = budget - totalConsumed;
+
+    res.json({
+      taskId: task.id,
+      taskTitle: task.title,
+      budget,
+      consumed: totalConsumed,
+      remaining,
+      percentUsed: budget > 0 ? (totalConsumed / budget) * 100 : 0,
+    });
+  } catch (error) {
+    console.error('Get task budget error:', error);
+    res.status(500).json({ error: 'Failed to fetch task budget' });
   }
 };

@@ -83,7 +83,7 @@ export class InvoiceService {
               taskTitle: task.title,
               phaseName: phase.name,
               hours: data.hours,
-              HourlyRate: assignment.hourlyRate,
+              hourlyRate: Number(assignment.hourlyRate),
               amount,
               userName: data.name,
             });

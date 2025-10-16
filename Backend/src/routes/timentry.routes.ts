@@ -1,19 +1,22 @@
-import express from 'express';
+import { Router } from 'express';
+import { authenticate } from '../middleware/auth.middleware';
 import {
   createTimeEntry,
-  getMyTimeEntries,
   getTaskTimeEntries,
-  getProjectTimeEntries,
+  getMyTimeEntries,
+  updateTimeEntry,
+  deleteTimeEntry,
+  getTaskBudget,
 } from '../controllers/timentry.controller';
-import { authenticate, requireManager } from '../middleware/auth.middleware';
 
-const router = express.Router();
+const router = Router();
 
-router.use(authenticate);
-
-router.post('/', createTimeEntry);
-router.get('/my-entries', getMyTimeEntries);
-router.get('/task/:taskId', getTaskTimeEntries);
-router.get('/project/:projectId', requireManager, getProjectTimeEntries);
+// All routes require authentication
+router.post('/', authenticate, createTimeEntry);
+router.get('/my-entries', authenticate, getMyTimeEntries);
+router.get('/task/:taskId', authenticate, getTaskTimeEntries);
+router.get('/task/:taskId/budget', authenticate, getTaskBudget);
+router.put('/:entryId', authenticate, updateTimeEntry);
+router.delete('/:entryId', authenticate, deleteTimeEntry);
 
 export default router;

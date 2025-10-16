@@ -1,6 +1,5 @@
 import { PrismaClient } from "@prisma/client";
 import { BudgetSummary } from "../types/types";
-import { Decimal } from "@prisma/client/runtime/library";
 
 const prisma = new PrismaClient();
 

@@ -78,7 +78,7 @@ export const getTask = async (req: Request, res: Response) => {
             },
           },
           orderBy: {
-            workDate: 'desc',
+            date: 'desc',
           },
         },
       },

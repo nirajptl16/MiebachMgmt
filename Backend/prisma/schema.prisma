@@ -140,7 +140,7 @@ model TimeEntry {
   id         String   @id @default(cuid())
   taskId     String
   userId     String
-  workDate   DateTime @db.Date
+  date       DateTime @db.Date
   hours      Decimal  @db.Decimal(5, 2)
   isBillable Boolean  @default(true)
   createdAt  DateTime @default(now())
@@ -152,7 +152,7 @@ model TimeEntry {
 
   @@index([taskId])
   @@index([userId])
-  @@index([workDate])
+  @@index([date])
   @@index([isBillable])
   @@map("time_entries")
 }

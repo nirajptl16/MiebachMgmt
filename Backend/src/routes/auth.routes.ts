@@ -18,7 +18,7 @@ router.get('/users/:userId/utilization', authenticate, async (req, res) => {
   } catch (error) {
     console.error('Error fetching user utilization:', error);
     res.status(500).json({ error: 'Failed to fetch user utilization' });
-  }
+  } 
 });
 
 

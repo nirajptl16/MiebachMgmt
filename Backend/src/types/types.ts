@@ -21,3 +21,13 @@ export interface UtilizationData{
     utilization:number;
 }
 
+export interface InvoiceLineItem{
+    taskId:string;
+    taskTitle:string;
+    phaseName:string
+    hours:number;
+    hourlyRate:number;
+    amount:number;
+    userName?:string;
+}
+
