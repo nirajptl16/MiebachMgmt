@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 
+
 import authRoutes from './routes/auth.routes';
 import projectRoutes from './routes/project.routes';
 import taskRoutes from './routes/task.routes';
@@ -14,7 +15,11 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'http://localhost:5174', // Adjust to your frontend URL
+  credentials: true
+}));
+
 app.use(express.json());
 
 // Request logging (development only)
@@ -24,6 +29,7 @@ if (process.env.NODE_ENV !== 'production') {
     next();
   });
 }
+
 
 // Routes
 app.use('/api/auth', authRoutes);

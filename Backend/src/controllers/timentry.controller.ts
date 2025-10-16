@@ -13,7 +13,7 @@ const convertTimeEntryDecimals = (entry: any) => ({
 export const createTimeEntry = async (req: Request, res: Response) => {
   try {
     const userId = (req as any).user.userId;
-    const { taskId, date, hours, isBillable } = req.body; // ← Changed from workDate to date
+    const { taskId, date, hours, isBillable } = req.body;
 
     console.log('📝 Creating time entry:', { userId, taskId, date, hours, isBillable });
 
@@ -31,12 +31,19 @@ export const createTimeEntry = async (req: Request, res: Response) => {
       return res.status(400).json({ error: 'Hours must be a positive number' });
     }
 
-    // Verify user is assigned to this task
+    // Verify user is assigned to this task AND get phase info
     const assignment = await prisma.taskAssignment.findFirst({
       where: {
         taskId,
         userId,
       },
+      include: {
+        task: {
+          include: {
+            phase: true
+          }
+        }
+      }
     });
 
     if (!assignment) {
@@ -48,9 +55,10 @@ export const createTimeEntry = async (req: Request, res: Response) => {
       data: {
         taskId,
         userId,
-        date: new Date(date), // ← Use date field
+        date: new Date(date),
         hours: parsedHours,
         isBillable: isBillable !== undefined ? isBillable : true,
+        remainingHours: parsedHours,
       },
       include: {
         task: {
@@ -81,8 +89,32 @@ export const createTimeEntry = async (req: Request, res: Response) => {
       },
     });
 
+    // Adjust forecast hours (if ProjectStaffing record exists)
+    if (assignment.task.phase) {
+      try {
+        await prisma.projectStaffing.update({
+          where: { 
+            projectId_userId: { 
+              projectId: assignment.task.phase.projectId, 
+              userId 
+            } 
+          },
+          data: {
+            forecastHours: {
+              decrement: parsedHours
+            }
+          }
+        });
+        console.log('✅ Forecast hours adjusted for user:', userId);
+      } catch (staffingError) {
+        // ProjectStaffing record might not exist - log but don't fail
+        console.warn('⚠️ Could not adjust forecast hours:', staffingError);
+      }
+    }
+
     console.log('✅ Time entry created:', timeEntry.id);
     res.status(201).json(convertTimeEntryDecimals(timeEntry));
+
   } catch (error: any) {
     console.error('❌ Create time entry error:', error);
     res.status(500).json({ 

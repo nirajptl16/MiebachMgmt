@@ -134,6 +134,7 @@ async function main() {
         userId: alice.id,
         date: new Date('2025-01-13'),
         hours: 8,
+        remainingHours: 42, // 50 - 8
         isBillable: true,
       },
       {
@@ -141,6 +142,7 @@ async function main() {
         userId: alice.id,
         date: new Date('2025-01-14'),
         hours: 6,
+        remainingHours: 36, // 42 - 6
         isBillable: true,
       },
     ],

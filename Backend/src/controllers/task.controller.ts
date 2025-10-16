@@ -263,3 +263,34 @@ export const getPhaseTasks = async (req: Request, res: Response) => {
     res.status(500).json({ error: 'Failed to fetch tasks' });
   }
 };
+
+export const updateTaskAssignment = async (req: Request, res: Response) => {
+  try {
+    const { assignmentId } = req.params;
+    const { hourlyRate } = req.body;
+
+    const updated = await prisma.taskAssignment.update({
+      where: { id: assignmentId },
+      data: { hourlyRate: parseFloat(hourlyRate) },
+    });
+
+    res.json(updated);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to update assignment' });
+  }
+};
+
+// Remove assignment
+export const removeTaskAssignment = async (req: Request, res: Response) => {
+  try {
+    const { assignmentId } = req.params;
+
+    await prisma.taskAssignment.delete({
+      where: { id: assignmentId },
+    });
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to remove assignment' });
+  }
+};
