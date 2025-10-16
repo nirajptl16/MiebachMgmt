@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getMyTasks, createTimeEntry, getTaskTimeEntries, deleteTimeEntry } from '../api/api';
-import { useAuth } from '../contexts/authcontext';
+import { useAuth } from '../contexts/AuthContext';
 
 // Remove local interfaces and import from API
 import type { Task, TimeEntry } from '../api/api';

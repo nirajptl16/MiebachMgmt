@@ -1,11 +1,11 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider, useAuth } from './contexts/authcontext';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import Login from './pages/login';
+import Login from './pages/Login';
 import ManagerDashboard from './pages/ManagerDashboard';
-import CreateProject from './pages/createproject';
+import CreateProject from './pages/CreateProject';
 import ProjectDetail from './pages/ProjectDetail';
-import ContributorDashboard from './pages/contributordashboard';
+import ContributorDashboard from './pages/ContributorDashboard';
 
 
 function AppRoutes() {
