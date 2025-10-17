@@ -75,13 +75,22 @@ npm install
 - Interactive invoice generator with date range selection
 - Detailed line-item breakdown by task and contributor
 - Automatic total calculation
-- 
-### 4. **Improved UX and UI **
+  
+### 4. **Improved UX and UI**
 - Modal-based (forms) workflows for task assignment
 - Inline forms for quick data entry
 - Addition of forms for all staffing/tasks/phases 
 
----
+### Assumptions
+- One user has a single role, not interchangeable
+- Forecast hours and hourly rates are set at time of staffing and do not change
+- Database always seeded before use
+- Best case scenario based on test acceptance and requirements, no deletion and rollback
+- Basic validation, no security concerns
+- Contributors logs task they are only assigned to
+- Managers don't add higher hourlyRate than expected
+- Time entries are in hours
+- No duplicates
 
 ## Design Choices & Trade-offs
 
