@@ -16,10 +16,10 @@ npm install
 
 ### initialize db in backend
 
-- Migrate database
+Migrate database
 -npm:run prisma:migrate
 
-- Seed database with given seed.ts
+Seed database with given seed.ts
 npm run:prisma:seed
 
 ### Start backend server
