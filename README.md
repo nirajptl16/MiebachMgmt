@@ -3,18 +3,18 @@
 - Ensure '.env' file is in Backend and contains 
 DATABASE_URL, JWT_SECRET, PORT=5000, NODE_ENV='development'
 
-1. **Clone Repo**
+### Clone Repo
 
-```sh
 git clone <your-repo-url>
 cd MiebachMgmt
-```
 
-2. **Backend Setup**
-```sh
+
+### Backend Setup
+
 cd Backend 
 npm install
-```
+
+### initialize db in backend
 
 - Migrate database
 -npm:run prisma:migrate
@@ -25,7 +25,7 @@ npm run:prisma:seed
 ### Start backend server
 npm run dev
 
-3. Frontend Setup
+### Frontend Setup
 cd Frontend
 npm install 
 
