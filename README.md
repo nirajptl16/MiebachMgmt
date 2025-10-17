@@ -17,15 +17,15 @@ cd Backend
 npm install
 ```
 
-### initialize db in backend
+### Initialize db in backend
 
 - Migrate database
 ```sh
-npm:run prisma:migrate
+npm run prisma:migrate
 ```
 - Seed database with given seed.ts
 ```sh
-npm run:prisma:seed
+npm run prisma:seed
 ```
 
 ### Start backend server
@@ -43,7 +43,7 @@ npm install
 ```sh
   npm run dev
   ```
-  
+
 [http://localhost:5173]
 
 ## Seeded Credentials
