@@ -212,23 +212,34 @@ export default function ProjectDetail() {
               </div>
             </form>
           )}
-
-          <ul>
-            {phaseTasks[phase.id]?.map(task => (
-              <li key={task.id} className="border p-1 rounded flex justify-between items-center">
-                <span>
-                  {task.title}
-                  <TaskBudget taskId={task.id} />
-                </span>
-                <button onClick={() => handleOpenAssignModal(task.id)} className="bg-purple-600 text-white text-xs rounded px-1 py-0.5">+ Assign</button>
-                {task.assignments.length > 0 && (
-                  <div className="text-xs flex flex-wrap gap-1 mt-1">
-                    {task.assignments.map(a => <span key={a.id} className="bg-purple-50 px-1 rounded border">{a.user.name} (${a.hourlyRate}/hr)</span>)}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
+<ul>
+  {phaseTasks[phase.id]?.map(task => (
+    <li key={task.id} className="border p-1 rounded flex items-center bg-white">
+      {/* Assigned users on the far left */}
+      {task.assignments.length > 0 && (
+        <div className="text-xs flex flex-wrap gap-1 mr-2">
+          {task.assignments.map(a => (
+            <span key={a.id} className="bg-purple-50 px-1 rounded border">{a.user.name} (${a.hourlyRate}/hr)</span>
+          ))}
+        </div>
+      )}
+      {/* Task title and budget */}
+      <span className="flex items-center gap-2">
+        {task.title}
+        <TaskBudget taskId={task.id} />
+      </span>
+      <div className="flex-1"></div>
+      {/* Assign button always on the far right */}
+      <button
+        onClick={() => handleOpenAssignModal(task.id)}
+        className="bg-purple-600 text-white text-xs rounded px-2 py-1 ml-2"
+        style={{ marginLeft: 'auto' }}
+      >
+        + Assign
+      </button>
+    </li>
+  ))}
+</ul>
           <PhaseBudget phaseId={phase.id} />
           </div>
         ))}
