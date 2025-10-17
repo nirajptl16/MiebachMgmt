@@ -5,33 +5,45 @@ DATABASE_URL, JWT_SECRET, PORT=5000, NODE_ENV='development'
 
 ### Clone Repo
 
+```sh
 git clone <your-repo-url>
 cd MiebachMgmt
-
+```
 
 ### Backend Setup
 
-cd Backend 
+```sh
+cd Backend
 npm install
+```
 
 ### initialize db in backend
 
-Migrate database
--npm:run prisma:migrate
-
-Seed database with given seed.ts
+- Migrate database
+```sh
+npm:run prisma:migrate
+```
+- Seed database with given seed.ts
+```sh
 npm run:prisma:seed
+```
 
 ### Start backend server
-npm run dev
+  ```sh
+  npm run dev
+  ```
 
 ### Frontend Setup
-cd Frontend
-npm install 
-
+```sh
+cd ../Frontend
+npm install
+```
 ### Start frontend server in another terminal 
-npm run dev
 
+```sh
+  npm run dev
+  ```
+  
 [http://localhost:5173]
 
 ## Seeded Credentials
