@@ -71,18 +71,13 @@ npm install
 - Budget widgets display on task and phase cards
 - Live updates as time entries are logged
 
-### 2. **Enhanced Utilization Dashboard**
-- Project-level utilization table showing all team members
-- Per-user utilization metrics
-- Visual comparison of forecast vs. actual hours
-
 ### 3. **Invoice Generation UI**
 - Interactive invoice generator with date range selection
 - Detailed line-item breakdown by task and contributor
 - Automatic total calculation
-
-### 4. **Improved UX**
-- Modal-based workflows for task assignment
+- 
+### 4. **Improved UX and UI **
+- Modal-based (forms) workflows for task assignment
 - Inline forms for quick data entry
 - Addition of forms for all staffing/tasks/phases 
 
@@ -103,17 +98,14 @@ npm install
 ### Frontend Patterns
 - **Context API:** For global auth state management
 - **Custom Hooks:** `useAuth()` for cleaner component code
-- **Protected Routes:** Middleware-style route protection
-- **Optimistic UI:** Immediate feedback before API responses
+- **Protected Routes:** Middleware-style route protection (RequireRole)
 
 ### Trade-offs
 1. **Forecast Hour Adjustment:** Currently decrements forecast hours when time is logged. In a real system, you might track "planned vs. actual" separately to preserve original estimates.
 
 2. **Invoice Storage:** Generated dynamically on request rather than stored. Storing invoices would enable audit trails but adds complexity.
 
-3. **Real-Time Updates:** Currently requires manual refresh. WebSocket integration would provide live updates but increases infrastructure complexity.
+3. **Error Handling:** Generic error messages for simplicity.
 
-4. **Validation:** Basic validation on the frontend and backend. Production would need more comprehensive validation (e.g., preventing overlapping tasks, budget overruns).
-
-5. **Error Handling:** Generic error messages for simplicity. Production would need detailed error codes and user-friendly messages.
+4. **Moderately difficult queries to read:** in some cases there might be many indentations for insantce getProjectBudget, might be a tradeoff for readability.
 
