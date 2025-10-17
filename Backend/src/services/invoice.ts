@@ -16,37 +16,36 @@ export class InvoiceService {
     invoice: any;
     lineItems: InvoiceLineItem[];
   }> {
-    const project = await prisma.project.findUnique({
-      where: { id: projectId },
+const project = await prisma.project.findUnique({
+  where: { id: projectId },
+  include: {
+    phases: { // <-- This is correct, matches your schema
       include: {
-        phases: {
+        tasks: {
           include: {
-            tasks: {
+            timeEntries: {
+              where: {
+                date: {
+                  gte: periodStart,
+                  lte: periodEnd,
+                },
+                isBillable: true,
+              },
               include: {
-                timeEntries: {
-                  where: {
-                    workDate: {
-                      gte: periodStart,
-                      lte: periodEnd,
-                    },
-                    isBillable: true,
-                  },
-                  include: {
-                    user: true,
-                  },
-                },
-                assignments: {
-                  include: {
-                    user: true,
-                  },
-                },
+                user: true,
+              },
+            },
+            assignments: {
+              include: {
+                user: true,
               },
             },
           },
         },
       },
-    });
-
+    },
+  },
+});
     if (!project) {
       throw new Error('Project not found');
     }

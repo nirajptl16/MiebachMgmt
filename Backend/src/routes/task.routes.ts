@@ -21,16 +21,5 @@ router.get('/:id', getTask);
 router.post('/:taskId/assign', requireManager, assignTask);
 router.patch('/:id/status', updateTaskStatus);
 
-router.get('/:id/budget', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const budget = await BudgetService.getTaskBudget(id);
-    res.json(budget);
-  } catch (error) {
-    console.error('Error fetching task budget:', error);
-    res.status(500).json({ error: 'Failed to fetch task budget' });
-  }
-});
-
 
 export default router;

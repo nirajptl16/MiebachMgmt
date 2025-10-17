@@ -288,7 +288,16 @@ export const getTaskBudget = async (taskId: string): Promise<TaskBudget> => {
   return response.data;
 };
 
-// ==================== ADDITIONAL API CALLS ====================
+export const getProjectBudget = async (projectId: string) => {
+  const response = await apiClient.get(`/projects/${projectId}/budget`);
+  return response.data;
+};
+
+export const getPhaseBudget = async (phaseId: string) => {
+  const response = await apiClient.get(`/time-entries/phase/${phaseId}/budget`);
+  return response.data;
+};
+
 export const getProjectUtilization = async (
   projectId: string,
   period: string // e.g., '2025-10-01' for week/month start

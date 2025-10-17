@@ -92,6 +92,7 @@ export default function ManagerDashboard() {
           </div>
         )}
 
+          
         {/* Project List */}
         {!isLoading && projects.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

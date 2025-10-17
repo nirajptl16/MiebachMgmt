@@ -1,5 +1,7 @@
 import { Request, Response } from 'express';
 import { PrismaClient } from '@prisma/client';
+import { BudgetService } from '../services/budget';
+
 
 const prisma = new PrismaClient();
 
@@ -89,7 +91,7 @@ export const createTimeEntry = async (req: Request, res: Response) => {
       },
     });
 
-    // Adjust forecast hours (if ProjectStaffing record exists)
+  // Adjust forecast hours (if ProjectStaffing record exists)
     if (assignment.task.phase) {
       try {
         await prisma.projectStaffing.update({
@@ -313,5 +315,15 @@ export const getTaskBudget = async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Get task budget error:', error);
     res.status(500).json({ error: 'Failed to fetch task budget' });
+  }
+};
+
+export const getPhaseBudget = async (req: Request, res: Response) => {
+  try {
+    const phaseId = req.params.phaseId;
+    const budget = await BudgetService.getPhaseBudget(phaseId);
+    res.json(budget);
+  } catch (err) {
+    res.status(400).json({ error: typeof err === 'object' && err !== null && 'message' in err ? (err as any).message : String(err) });
   }
 };

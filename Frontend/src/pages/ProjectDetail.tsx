@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { getProject, addStaffing, addPhase, createTask, assignTask, getTasksByPhase, getAllUsers} from '../api/api';
 import TaskBudget from '../components/TaskBudget';
 import UtilizationTable from '../components/UtilizationTable';
-
+import PhaseBudget from '../components/PhaseBudget';
+import InvoiceTable from '../components/InvoiceTable';
 
 interface ProjectStaffing { id: string; userId: string; roleName: string; hourlyRate: number; forecastHours: number; user: { name: string; email: string } }
 interface ProjectPhase { id: string; name: string; startDate: string; endDate: string }
@@ -114,34 +115,53 @@ export default function ProjectDetail() {
       )}
 
       {/* Staffing */}
-      <section className="bg-white p-3 rounded space-y-2">
-        <div className="flex justify-between items-center">
-          <h2 className="font-semibold">Staffing (Total: ${totalForecast.toFixed(2)})</h2>
-          <button onClick={() => setShowStaffingForm(!showStaffingForm)} className="bg-blue-600 text-white rounded px-2 py-1">+ Add</button>
-        </div>
-        {showStaffingForm && (
-          <form onSubmit={handleAddStaffing} className="space-y-1">
-            <select value={staffingForm.userId} onChange={e => setStaffingForm({ ...staffingForm, userId: e.target.value })} required className="w-full border p-1 rounded">
-              <option value="">Select user...</option>{users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-            </select>
-            <input type="text" placeholder="Role" value={staffingForm.roleName} onChange={e => setStaffingForm({ ...staffingForm, roleName: e.target.value })} className="w-full border p-1 rounded" />
-            <input type="number" placeholder="Rate" value={staffingForm.hourlyRate} onChange={e => setStaffingForm({ ...staffingForm, hourlyRate: e.target.value })} className="w-full border p-1 rounded" />
-            <input type="number" placeholder="Hours" value={staffingForm.forecastHours} onChange={e => setStaffingForm({ ...staffingForm, forecastHours: e.target.value })} className="w-full border p-1 rounded" />
-            <div className="flex gap-2">
-              <button type="button" onClick={() => setShowStaffingForm(false)} className="flex-1 bg-gray-200 rounded p-1">Cancel</button>
-              <button type="submit" className="flex-1 bg-blue-600 text-white rounded p-1">Add</button>
-            </div>
-          </form>
-        )}
-        <ul>
-          {project.staffing.map(s => (
-            <li key={s.id} className="flex justify-between text-sm border-b py-1">
-              <span>{s.user.name} ({s.roleName})</span>
-              <span>${s.hourlyRate} × {s.forecastHours}h = ${(s.hourlyRate * s.forecastHours).toFixed(2)}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
+        <section className="bg-white p-3 rounded space-y-2">
+          <div className="flex justify-between items-center">
+            <h2 className="font-semibold">Staffing (Total: ${totalForecast.toFixed(2)})</h2>
+            <button onClick={() => setShowStaffingForm(!showStaffingForm)} className="bg-blue-600 text-white rounded px-2 py-1">+ Add</button>
+          </div>
+          {showStaffingForm && (
+            <form onSubmit={handleAddStaffing} className="space-y-1">
+              <select value={staffingForm.userId} onChange={e => setStaffingForm({ ...staffingForm, userId: e.target.value })} required className="w-full border p-1 rounded">
+                <option value="">Select user...</option>
+                {users.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+              </select>
+              <input type="text" placeholder="Role" value={staffingForm.roleName} onChange={e => setStaffingForm({ ...staffingForm, roleName: e.target.value })} className="w-full border p-1 rounded" required />
+              <input type="number" placeholder="Rate" value={staffingForm.hourlyRate} onChange={e => setStaffingForm({ ...staffingForm, hourlyRate: e.target.value })} className="w-full border p-1 rounded" required />
+              <input type="number" placeholder="Forecast Hours" value={staffingForm.forecastHours} onChange={e => setStaffingForm({ ...staffingForm, forecastHours: e.target.value })} className="w-full border p-1 rounded" required />
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setShowStaffingForm(false)} className="flex-1 bg-gray-200 rounded p-1">Cancel</button>
+                <button type="submit" className="flex-1 bg-blue-600 text-white rounded p-1">Add</button>
+              </div>
+            </form>
+          )}
+          <table className="min-w-full mt-2">
+            <thead>
+              <tr className="bg-gray-100 text-sm">
+                <th className="px-2 py-1 text-left">Name</th>
+                <th className="px-2 py-1 text-left">Role</th>
+                <th className="px-2 py-1 text-right">Rate</th>
+                <th className="px-2 py-1 text-right">Forecast Hours</th>
+                <th className="px-2 py-1 text-right">Forecast Budget</th>
+              </tr>
+            </thead>
+            <tbody>
+              {project.staffing.map(s => (
+                <tr key={s.id} className="border-b text-sm">
+                  <td className="px-2 py-1">{s.user.name}</td>
+                  <td className="px-2 py-1">{s.roleName}</td>
+                  <td className="px-2 py-1 text-right">${s.hourlyRate}</td>
+                  <td className="px-2 py-1 text-right">{s.forecastHours}</td>
+                  <td className="px-2 py-1 text-right">${(s.hourlyRate * s.forecastHours).toFixed(2)}</td>
+                </tr>
+              ))}
+              <tr>
+                <td colSpan={4} className="px-2 py-1 text-right font-bold">Total forecast budget:</td>
+                <td className="px-2 py-1 text-right font-bold">${totalForecast.toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
 
       <section className="bg-white p-3 rounded space-y-2">
               <UtilizationTable projectId={projectId!} />
@@ -197,7 +217,7 @@ export default function ProjectDetail() {
             {phaseTasks[phase.id]?.map(task => (
               <li key={task.id} className="border p-1 rounded flex justify-between items-center">
                 <span>
-                  {task.title} (${task.budget})
+                  {task.title}
                   <TaskBudget taskId={task.id} />
                 </span>
                 <button onClick={() => handleOpenAssignModal(task.id)} className="bg-purple-600 text-white text-xs rounded px-1 py-0.5">+ Assign</button>
@@ -209,10 +229,18 @@ export default function ProjectDetail() {
               </li>
             ))}
           </ul>
+          <PhaseBudget phaseId={phase.id} />
           </div>
         ))}
       </section>
 
+      <section className="bg-white p-3 rounded space-y-2">
+        <h2 className="font-semibold">Generate Invoice</h2>
+        <InvoiceTable
+          defaultProjectId={project.id}
+          defaultClientId={project.clientName}
+        />
+      </section>
   
     </div>
   );

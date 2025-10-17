@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 export const apiClient = axios.create({
-  baseURL: 'http://localhost:5000/api', // ✅ Match your backend port
+  baseURL: 'http://localhost:5000/api', 
   headers: { 'Content-Type': 'application/json' },
 });
 
@@ -27,3 +27,5 @@ apiClient.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export default apiClient;
