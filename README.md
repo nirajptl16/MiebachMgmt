@@ -1,4 +1,4 @@
-To run the project
+### To run the project
 
 - Ensure '.env' file is in Backend and contains 
 DATABASE_URL, JWT_SECRET, PORT=5000, NODE_ENV='development'
@@ -47,7 +47,7 @@ npm run dev
 - **Role:** Can view assigned tasks and log time entries
 
 
-## 🎯 Optional Extensions Implemented
+## Optional Extensions Implemented
 
 ### 1. **Real-Time Budget Tracking UI**
 - Budget widgets display on task and phase cards
@@ -70,7 +70,7 @@ npm run dev
 
 ---
 
-## 🏗️ Design Choices & Trade-offs
+## Design Choices & Trade-offs
 
 ### Architecture
 - **Separation of Concerns:** Clean separation between business logic (services), data access (Prisma), and API routes (controllers)
